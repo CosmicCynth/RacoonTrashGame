@@ -14,12 +14,15 @@ function love.load()
     player.speed = 300
     player.x = player.hitbox:getX() - 32
     player.y = player.hitbox:getY() - 32
+    player.level = 1
 
     --Player bullets
     bullets = {}
 
+    --Racoons
+    racoons = {}
     --Debugging
-
+    levelLoader(player.level)
 end
 
 function love.update(dt)
@@ -40,9 +43,14 @@ function love.update(dt)
     --Updates the position of the hitboxes
 
     --Checks for each bullet and updates their y axis up
-    for i,bullet in ipairs(bullets) do
-        bullet.hitbox:setLinearVelocity(0,-100)
+    for i,bullet in pairs(bullets) do
+        bullet.hitbox:setLinearVelocity(0,-170)
         bullet.y = bullet.hitbox:getY() - 8
+    end
+
+    --Checks and makes sure that racoon hitbox and sprite macthes
+    for i, racoon in pairs(racoons) do 
+       racoon.y = racoon.hitbox:getY() - 32
     end
 
     world:update(dt)
@@ -54,26 +62,50 @@ function love.draw()
     love.graphics.rectangle("fill",player.x,player.y,64,64)
     love.graphics.setColor(255,255,255)
 
-    love.graphics.print("X: "..player.x)
-
-
+    --Draws the bullet
     for i, bullet in pairs(bullets) do 
         love.graphics.draw(bullet.sprite,bullet.x,bullet.y)
     end
+
+    --Draws the racoon
+    for i, racoon in pairs(racoons) do
+        love.graphics.draw(racoon.sprite,racoon.x,racoon.y)
+    end
+
     world:draw()
 end
 
+--Function to spawn bullet
 function love.mousepressed(x,y,button)
     if button == 1 then
         spawnBullet(player.x,player.y,sprite)
     end
 end
 
+--spawning bullet
 function spawnBullet(x,y,sprite)
     bullet = {}
-    bullet.x = x
+    bullet.x = x + 20
     bullet.y = y - 20
-    bullet.hitbox = world:newRectangleCollider(x,bullet.y,16,16)
+    bullet.hitbox = world:newRectangleCollider(bullet.x,bullet.y,16,16)
+    bullet.hitbox:setFixedRotation(true)
     bullet.sprite = love.graphics.newImage("images/pBullet.png")
     table.insert(bullets,bullet)
+end
+
+--Spawning enemy used in level designing
+function spawnRacoon(x,y,sprite)
+    racoon = {}
+    racoon.x = x
+    racoon.y = y
+    racoon.hitbox = world:newRectangleCollider(racoon.x,racoon.y,64,64)
+    racoon.hitbox:setFixedRotation(true)
+    racoon.sprite = love.graphics.newImage("images/enemy.png")
+    table.insert(racoons,racoon)
+end
+
+function levelLoader(level)
+    if level == 1 then
+        spawnRacoon(200,200,sprite)
+    end
 end
