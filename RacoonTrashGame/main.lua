@@ -58,7 +58,6 @@ function love.update(dt)
         for i = #racoons, 1, -1 do
             local racoon = racoons[i]
             if bullet.hitbox:enter("Racoons") then
-                debug = "I love Xenias fat ass"
                 racoon.hitbox:destroy()
                 racoon.hitbox = nil
                 table.remove(racoons, i)
@@ -93,9 +92,6 @@ function love.draw()
     for i, racoon in pairs(racoons) do
         love.graphics.draw(racoon.sprite,racoon.x,racoon.y)
     end
-
-    love.graphics.print(debug)
-
 
     world:draw()
 end
