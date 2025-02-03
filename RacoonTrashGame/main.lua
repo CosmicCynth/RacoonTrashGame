@@ -3,6 +3,9 @@ function love.load()
     wf = require"Libaries/windfield"
     world = wf.newWorld(0,0,true)
 
+    --windfield stuff
+    world:addCollisionClass("Racoons")
+    world:addCollisionClass("Bullets")
 
     --Player table
     player = {}
@@ -15,14 +18,19 @@ function love.load()
     player.x = player.hitbox:getX() - 32
     player.y = player.hitbox:getY() - 32
     player.level = 1
+    player.enemiesLeft = 1
 
     --Player bullets
     bullets = {}
 
     --Racoons
     racoons = {}
-    --Debugging
+    --Levels
     levelLoader(player.level)
+
+    --Debugging
+    debug = "1123lkefkefk"
+    
 end
 
 function love.update(dt)
@@ -42,16 +50,30 @@ function love.update(dt)
     player.y = player.hitbox:getY() - 32
     --Updates the position of the hitboxes
 
-    --Checks for each bullet and updates their y axis up
-    for i,bullet in pairs(bullets) do
-        bullet.hitbox:setLinearVelocity(0,-170)
+    --For each bullet present on screen
+    for i = #bullets, 1, -1 do
+        local bullet = bullets[i]
+        bullet.hitbox:setLinearVelocity(0, -170)
         bullet.y = bullet.hitbox:getY() - 8
+        for i = #racoons, 1, -1 do
+            local racoon = racoons[i]
+            if bullet.hitbox:enter("Racoons") then
+                debug = "I love Xenias fat ass"
+                racoon.hitbox:destroy()
+                racoon.hitbox = nil
+                table.remove(racoons, i)
+            end
+        end
+    
+
     end
+    
 
     --Checks and makes sure that racoon hitbox and sprite macthes
     for i, racoon in pairs(racoons) do 
        racoon.y = racoon.hitbox:getY() - 32
     end
+
 
     world:update(dt)
 end
@@ -72,6 +94,9 @@ function love.draw()
         love.graphics.draw(racoon.sprite,racoon.x,racoon.y)
     end
 
+    love.graphics.print(debug)
+
+
     world:draw()
 end
 
@@ -88,6 +113,7 @@ function spawnBullet(x,y,sprite)
     bullet.x = x + 20
     bullet.y = y - 20
     bullet.hitbox = world:newRectangleCollider(bullet.x,bullet.y,16,16)
+    bullet.hitbox:setCollisionClass("Bullets")
     bullet.hitbox:setFixedRotation(true)
     bullet.sprite = love.graphics.newImage("images/pBullet.png")
     table.insert(bullets,bullet)
@@ -100,6 +126,7 @@ function spawnRacoon(x,y,sprite)
     racoon.y = y
     racoon.hitbox = world:newRectangleCollider(racoon.x,racoon.y,64,64)
     racoon.hitbox:setFixedRotation(true)
+    racoon.hitbox:setCollisionClass("Racoons")
     racoon.sprite = love.graphics.newImage("images/enemy.png")
     table.insert(racoons,racoon)
 end
@@ -107,5 +134,6 @@ end
 function levelLoader(level)
     if level == 1 then
         spawnRacoon(200,200,sprite)
+        player.enemiesLeft = 1
     end
 end
